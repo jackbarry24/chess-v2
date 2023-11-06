@@ -42,7 +42,7 @@ body {
     border: 1px solid #ddd;
 }
 
-button {
+#startBtn {
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
@@ -51,8 +51,16 @@ button {
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px;
     cursor: pointer;
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+    
+}
+
+#reset-button-container {
+    width: 100%;
+    text-align: center;
 }
 
 #search-depth {
