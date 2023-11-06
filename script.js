@@ -13,7 +13,7 @@ const getBestMove = (searchDepth, gameState, isPlayerMaximising) => {
 
 
     // implementation is similar to "generate subsets" type problems
-    // perform move -> recursively get board state -> undo move
+    // perform move -> recursively permute board state -> undo move
     possibleMoves.forEach(({ move }) => {
         gameState.ugly_move(move);
         let score = getMinimax(searchDepth - 1, gameState, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, !isPlayerMaximising);
@@ -26,6 +26,7 @@ const getBestMove = (searchDepth, gameState, isPlayerMaximising) => {
 
     return optimalMove;
 };
+
 
 const getMinimax = (searchDepth, gameState, alpha, beta, isPlayerMaximising) => {
     positionCount++;
@@ -77,14 +78,13 @@ const evaluateMove = (move, gameState) => {
 };
 
 
-// returns a value between -1 and 1 representing the probability of the player winning
+// returns a value between 0 and 100 representing the probability of the player winning
 const getWinProbability = (gameState) => {
     let totalScore = evaluateGameBoard(gameState.board());
-    console.log(totalScore);
-    let normalizedScore = totalScore / 100;
+    let normalizedScore = (totalScore / 10) + 50;
 
-    normalizedScore = Math.max(-1, normalizedScore);
-    normalizedScore = Math.min(1, normalizedScore);
+    normalizedScore = Math.max(0, normalizedScore);
+    normalizedScore = Math.min(100, normalizedScore);
 
     return normalizedScore;
 };
@@ -127,7 +127,7 @@ const getPieceValue = (piece, x, y) => {
 };
 
 
-// functions for interacting with the UI
+// functions for interacting with the UI inspired by https://github.com/lhartikk/simple-chess-ai
 
 const onDragStart = (source, piece, position, orientation) => {
     if (game.in_checkmate() || game.in_draw() || piece.search(/^b/) !== -1) {
@@ -155,21 +155,11 @@ const getBestMoveWrapper = (game) => {
 
     positionCount = 0;
     const searchDepth = parseInt($('#search-depth').find(':selected').text());
-
-    const startTime = new Date().getTime();
     const optimalMove = getBestMove(searchDepth, game, true);
-    const endTime = new Date().getTime();
-
-    const moveDuration = (endTime - startTime);
-    const positionsPerSecond = (positionCount * 1000 / moveDuration);
 
     $('#position-count').text(positionCount);
-    $('#time').text(moveDuration / 1000 + 's');
-    $('#positions-per-s').text(positionsPerSecond.toFixed(2)); 
     let winProbability = getWinProbability(game);
-    $('#win-probability').text(winProbability.toFixed(2));
-    // $('#win-probability-range').val(winProbability.toFixed(2));
-
+    $('#win-probability').text(winProbability.toFixed(2) + '%');
 
     return optimalMove;
 };
@@ -254,11 +244,9 @@ const greySquare = function(square) {
 const startGame = () => {
     board.start();
     game.reset();
-    $('#time').text('');
     $('#position-count').text('');
-    $('#positions-per-s').text('');
-    $('#win-probability').text('');
     $('#move-history').empty();
+    $('#win-probability').text('');
     removeGreySquares();
 };
 $('#startBtn').on('click', startGame);
