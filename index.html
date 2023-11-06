@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="lib/chessboardjs/css/chessboard-0.3.0.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <h1 class="title">Simple Minimax + AB Pruning Chess Engine</h1>
+        <section class="container">
+            <div id="game" class="game">
+                <div id="board" class="board"></div>
+                <button id="startBtn">Reset</button>
+                <div id="progressbar"></div>
+                <!-- <div id="win-probability-slider">
+                    <input type="range" min="-1" max="1" value="0" class="slider" id="win-probability-range" disabled>
+                </div> -->
+            </div>  
+            <div class="info">
+                <label for="search-depth">Search depth:</label>
+                <select id="search-depth">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <div class="statistics">
+                    <p>Positions evaluated: <span id="position-count"></span></p>
+                    <p>Time: <span id="time"></span></p>
+                    <p>Positions/s: <span id="positions-per-s"></span></p>
+                    <p>Win probability: <span id = "win-probability"></span></p>
+                </div>
+                <label for="move-history">Move history:</label>
+                <div id="move-history" class="move-history"></div>
+            </div>
+        </section>
+    </main>
+    
+    <script src="lib/jquery/jquery-3.2.1.min.js"></script>
+    <script src="lib/chessboardjs/js/chess.js"></script>
+    <script src="lib/chessboardjs/js/chessboard-0.3.0.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
