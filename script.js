@@ -3,26 +3,28 @@ var board, game = new Chess();
 // performs minimax search on each possible move and returns the best move
 // inspired by https://www.chessprogramming.org/Minimax & https://www.chessprogramming.org/Alpha-Beta
 const getBestMove = (searchDepth, gameState, isPlayerMaximising) => {
+    
     let possibleMoves = gameState.ugly_moves();
     let highestScore = Number.MIN_SAFE_INTEGER;
     let optimalMove;
 
     // evaluate and sort the possible moves
-    possibleMoves = possibleMoves.map(move => evaluateMove(move, gameState))
-        .sort((a, b) => isPlayerMaximising ? b.score - a.score : a.score - b.score)
-        .map(moveScore => moveScore.move);
+    // possibleMoves = possibleMoves.map(move => evaluateMove(move, gameState))
+    //     .sort((a, b) => isPlayerMaximising ? b.score - a.score : a.score - b.score)
+    //     .map(moveScore => moveScore.move);
 
-    for(let depth = 1; depth <= searchDepth; depth++) {
-        possibleMoves.forEach(move => {
-            gameState.ugly_move(move);
-            let score = getMinimax(depth - 1, gameState, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, !isPlayerMaximising);
-            gameState.undo();
-            if(score > highestScore) {
-                highestScore = score;
-                optimalMove = move;
-            }
-        });
-    }
+    // for(let depth = 1; depth <= searchDepth; depth++) {
+    
+    possibleMoves.forEach(move => {
+        gameState.ugly_move(move);
+        let score = getMinimax(searchDepth - 1, gameState, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, !isPlayerMaximising);
+        gameState.undo();
+        if(score > highestScore) {
+            highestScore = score;
+            optimalMove = move;
+        }
+    });
+    // }
 
     return optimalMove;
 };
