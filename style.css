@@ -39,10 +39,10 @@ body {
     overflow-y: scroll;
     margin-top: 20px;
     padding: 10px;
-    border: 1px solid #ddd;
+    /* border: 1px solid #ddd; */
 }
 
-#startBtn {
+.game-button {
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
@@ -52,13 +52,15 @@ body {
     display: inline-block;
     font-size: 16px;
     cursor: pointer;
-    display: block;
-    margin: 0 auto;
-    margin-top: 10px;
-    
+    margin: 10px;
 }
 
-#reset-button-container {
+#game-button-container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
     width: 100%;
     text-align: center;
 }

@@ -7,68 +7,61 @@ const getBestMove = (searchDepth, gameState, isPlayerMaximising) => {
     let highestScore = Number.MIN_SAFE_INTEGER;
     let optimalMove;
 
-    // Evaluate and sort the moves so we can start with the most promising ones
+    // evaluate and sort the possible moves
     possibleMoves = possibleMoves.map(move => evaluateMove(move, gameState))
-        .sort((a, b) => b.score - a.score);
+        .sort((a, b) => isPlayerMaximising ? b.score - a.score : a.score - b.score)
+        .map(moveScore => moveScore.move);
 
-
-    // implementation is similar to "generate subsets" type problems
-    // perform move -> recursively permute board state -> undo move
-    possibleMoves.forEach(({ move }) => {
-        gameState.ugly_move(move);
-        let score = getMinimax(searchDepth - 1, gameState, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, !isPlayerMaximising);
-        gameState.undo();
-        if(score >= highestScore) {
-            highestScore = score;
-            optimalMove = move;
-        }
-    });
+    for(let depth = 1; depth <= searchDepth; depth++) {
+        possibleMoves.forEach(move => {
+            gameState.ugly_move(move);
+            let score = getMinimax(depth - 1, gameState, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, !isPlayerMaximising);
+            gameState.undo();
+            if(score > highestScore) {
+                highestScore = score;
+                optimalMove = move;
+            }
+        });
+    }
 
     return optimalMove;
 };
 
 
 const getMinimax = (searchDepth, gameState, alpha, beta, isPlayerMaximising) => {
-    positionCount++;
-
     if (searchDepth === 0) {
         return -1 * evaluateGameBoard(gameState.board());
     }
 
     let possibleMoves = gameState.ugly_moves();
+    let optimalScore = isPlayerMaximising ? Number.MIN_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
 
-    possibleMoves = possibleMoves.map(move => evaluateMove(move, gameState))
-        .sort((a, b) => isPlayerMaximising ? b.score - a.score : a.score - b.score);
+    for (let i = 0; i < possibleMoves.length; i++) {
+        gameState.ugly_move(possibleMoves[i]);
+        let score = getMinimax(searchDepth - 1, gameState, alpha, beta, !isPlayerMaximising);
+        gameState.undo();
 
-    if (isPlayerMaximising) {
-        let optimalScore = Number.MIN_SAFE_INTEGER;
-        possibleMoves.forEach(({ move }) => {
-            gameState.ugly_move(move);
-            optimalScore = Math.max(optimalScore, getMinimax(searchDepth - 1, gameState, alpha, beta, !isPlayerMaximising));
-            gameState.undo();
-            alpha = Math.max(alpha, optimalScore);
-            if (beta <= alpha) {
-                return optimalScore;
+        if (isPlayerMaximising) {
+            if (score > optimalScore) {
+                optimalScore = score;
+                alpha = Math.max(alpha, optimalScore);
             }
-        });
-        return optimalScore;
-    } else {
-        let optimalScore = Number.MAX_SAFE_INTEGER;
-        possibleMoves.forEach(({ move }) => {
-            gameState.ugly_move(move);
-            optimalScore = Math.min(optimalScore, getMinimax(searchDepth - 1, gameState, alpha, beta, !isPlayerMaximising));
-            gameState.undo();
-            beta = Math.min(beta, optimalScore);
-            if (beta <= alpha) {
-                return optimalScore;
+        } else {
+            if (score < optimalScore) {
+                optimalScore = score;
+                beta = Math.min(beta, optimalScore);
             }
-        });
-        return optimalScore;
+        }
+
+        if (beta <= alpha) {
+            break;
+        }
     }
+
+    return optimalScore;
 };
 
 
-// helper function for performing move ordering https://www.chessprogramming.org/Move_Ordering
 const evaluateMove = (move, gameState) => {
     gameState.ugly_move(move);
     let score = evaluateGameBoard(gameState.board());
@@ -145,7 +138,6 @@ const makeBestMove = function () {
         alert('Game over');
     }
 };
-
 
 let positionCount;
 const getBestMoveWrapper = (game) => {
@@ -249,7 +241,36 @@ const startGame = () => {
     $('#win-probability').text('');
     removeGreySquares();
 };
-$('#startBtn').on('click', startGame);
+
+const undoLastMove = () => {
+    game.undo();
+    game.undo();
+    board.position(game.fen());
+    const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    //if board position after last undo is the starting position, clear move history
+    if (game.fen() === start) {
+        $('#move-history').empty();
+    }else{
+        dispMoveHistory(game.history());
+    }
+};
+
+// const showBestMove = () => {
+//     const bestMove = getBestMoveWrapper(game);
+//     game.ugly_move(bestMove);
+//     // make it so the best move is made but then undone after 1 second
+//     board.position(game.fen());
+//     dispMoveHistory(game.history());
+//     window.setTimeout(() => {
+//         game.undo();
+//         board.position(game.fen());
+//         dispMoveHistory(game.history());
+//     }, 500);
+// };
+
+$('#resetBtn').on('click', startGame);
+$('#undoBtn').on('click', undoLastMove);
+// $('#bestMoveBtn').on('click', showBestMove);
 
 
 const config = {
